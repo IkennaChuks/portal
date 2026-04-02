@@ -72,16 +72,16 @@ steps:
     args: ['push', '${_IMAGE_PATH}']
     waitFor: ["build"]  
 
-  # - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
-  #   id: "deploy_feature"
-  #   entrypoint: bash
-  #   args:
-  #     - -c
-  #     - |
-  #       if [[ "$BRANCH_NAME" =~ ^feature-.*$ ]]
-  #       then
-  #         gcloud run deploy "${BRANCH_NAME}" --image  "${_IMAGE_PATH}" --region "${_DEPLOY_REGION}" --allow-unauthenticated
-  #       fi
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    id: "deploy_feature"
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        if [[ "$BRANCH_NAME" =~ ^feature-.*$ ]]
+        then
+          gcloud run deploy "${BRANCH_NAME}" --image  "${_IMAGE_PATH}" --region "${_DEPLOY_REGION}" --allow-unauthenticated
+        fi
 
   # - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
   #   id: "test_feature"
@@ -121,5 +121,6 @@ substitutions:
   _LOCATION: us-central1-docker.pkg.dev
   _IMAGE: employee-portal/emp-portal-image
   _IMAGE_PATH: ${_LOCATION}/${PROJECT_ID}/${_IMAGE}:${BRANCH_NAME}  
-  # _DEPLOY_REGION: us-central1
+  _DEPLOY_REGION: us-central1
 
+  
