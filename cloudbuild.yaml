@@ -1,0 +1,29 @@
+steps:
+  - name: "python"
+    id: "lint_test"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        pip install flake8-html \
+        && flake8 --format=html --htmldir=flake_reports/ || lint_status=$?
+        echo "$${lint_status:-0}" > lint_exit_code.txt
+        echo "lint test exited with code $${lint_status:-0}"
+    allowFailure: true    
+  
+  - name: 'gcr.io/cloud-builders/gsutil'
+    id: "upload-lint-artifacts"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        lint_status=$(cat lint_exit_code.txt)
+        if [ "$lint_status" -ne 0 ]; then
+          echo "Lint failed (code: $lint_status). Uploading artifacts..."
+          gsutil cp -r flake_reports/* gs://portal-artifacts-2025/
+          echo "Exiting with error..."
+          exit 1
+        else
+          echo "Lint succeeded."
+        fi
+    waitFor: ["lint_test"]
