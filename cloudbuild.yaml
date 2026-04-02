@@ -30,3 +30,34 @@ steps:
           echo "Lint succeeded."
         fi
     waitFor: ["lint_test"]
+
+  - name: "python"
+    id: "pytest"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        pip install pytest-html \
+        && pip install -r requirements.txt --user \
+        && pytest --html=pytest_reports/pytest-report.html --self-contained-html || pytest_status=$?
+        echo "$${pytest_status:-0}" > pytest_exit_code.txt
+        echo "pytest exited with code $${pytest_status:-0}"   
+    allowFailure: true
+    waitFor: ["-"]
+
+  - name: 'gcr.io/cloud-builders/gsutil'
+    id: "upload-pytest-artifacts"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        pytest_status=$(cat pytest_exit_code.txt)
+        if [ "$pytest_status" -ne 0 ]; then
+          echo "Pytest failed (code: $pytest_status). Uploading artifacts..."
+          gsutil cp -r pytest_reports/* gs://portal-artifacts-2025/
+          echo "Exiting with error..."
+          exit 1
+        else
+          echo "Pytest succeeded."
+        fi
+    waitFor: ["pytest"]   
