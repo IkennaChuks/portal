@@ -38,7 +38,7 @@ kind: Automation
 metadata:
   name: emp-portal-pipeline/promote
   description: Promotes a release to the next target
-serviceAccount: 1049651723694-compute@developer.gserviceaccount.com
+serviceAccount: 610990664696-compute@developer.gserviceaccount.com	
 selector:
   targets: 
     - id: staging-env
