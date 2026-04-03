@@ -78,33 +78,27 @@ steps:
     args:
       - -c
       - |
-        if [[ "$BRANCH_NAME" =~ ^feature-.*$ ]]
-        then
-          gcloud run deploy "${BRANCH_NAME}" --image  "${_IMAGE_PATH}" --region "${_DEPLOY_REGION}" --allow-unauthenticated
-        fi
+        gcloud run deploy "${BRANCH_NAME}" --image  "${_IMAGE_PATH}" --region "${_DEPLOY_REGION}" --allow-unauthenticated
 
-  # - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
-  #   id: "test_feature"
-  #   entrypoint: bash
-  #   args:
-  #     - -c
-  #     - | 
-  #       if [[ "$BRANCH_NAME" =~ ^feature-.*$ ]]
-  #       then
-  #         gcloud run services describe "${BRANCH_NAME}" --region "${_DEPLOY_REGION}" --format='value(status.url)' | xargs -I {} curl -s "{}" | grep "Employee Data" && echo "Test passed" || (echo "Test failed" && exit 1)
-  #       fi
 
-  # - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
-  #   id: "register_pipeline"
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    id: "test_feature"
+    entrypoint: bash
+    args:
+      - -c
+      - | 
+        gcloud run services describe "${BRANCH_NAME}" --region "${_DEPLOY_REGION}" --format='value(status.url)' | xargs -I {} curl -s "{}" | grep "Employee Data" && echo "Test passed" || (echo "Test failed" && exit 1)
+
+
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    id: "register_pipeline"
     
-  #   entrypoint: bash
-  #   args:
-  #     - -c
-  #     - | 
-  #       if [[ "$BRANCH_NAME" == "main" ]]
-  #       then
-  #         gcloud deploy apply --file=./deploy/clouddeploy.yaml --region=$_DEPLOY_REGION --project=$PROJECT_ID
-  #       fi  
+    entrypoint: bash
+    args:
+      - -c
+      - | 
+        gcloud deploy apply --file=./deploy/clouddeploy.yaml --region=$_DEPLOY_REGION --project=$PROJECT_ID
+ 
 
   # - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   #   id: 'create_release'
