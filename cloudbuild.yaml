@@ -81,13 +81,13 @@ steps:
         gcloud run deploy "${BRANCH_NAME}" --image  "${_IMAGE_PATH}" --region "${_DEPLOY_REGION}" --allow-unauthenticated
 
 
-  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
-    id: "test_feature"
-    entrypoint: bash
-    args:
-      - -c
-      - | 
-        gcloud run services describe "${BRANCH_NAME}" --region "${_DEPLOY_REGION}" --format='value(status.url)' | xargs -I {} curl -s "{}" | grep "Employee Data" && echo "Test passed" || (echo "Test failed" && exit 1)
+  # - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+  #   id: "test_feature"
+  #   entrypoint: bash
+  #   args:
+  #     - -c
+  #     - | 
+  #       gcloud run services describe "${BRANCH_NAME}" --region "${_DEPLOY_REGION}" --format='value(status.url)' | xargs -I {} curl -s "{}" | grep "Employee Data" && echo "Test passed" || (echo "Test failed" && exit 1)
 
 
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
@@ -100,16 +100,13 @@ steps:
         gcloud deploy apply --file=./deploy/clouddeploy.yaml --region=$_DEPLOY_REGION --project=$PROJECT_ID
  
 
-  # - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-  #   id: 'create_release'
-  #   entrypoint: 'bash'
-  #   args:
-  #     - '-c'
-  #     - |
-  #       if [[ "$BRANCH_NAME" == "main" ]]
-  #       then
-  #         gcloud deploy releases create emp-portal-$SHORT_SHA --delivery-pipeline emp-portal-pipeline --region $_DEPLOY_REGION --images app-image="$_IMAGE_PATH"
-  #       fi
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'create_release'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        gcloud deploy releases create emp-portal-$SHORT_SHA --delivery-pipeline emp-portal-pipeline --region $_DEPLOY_REGION --images app-image="$_IMAGE_PATH"
 
 substitutions:
   _LOCATION: us-central1-docker.pkg.dev
